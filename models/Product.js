@@ -5,6 +5,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: String, required: true },
   price: { type: Number, required: true },
+  previousPrice: { type: Number }, // Store the previous price here
   imageUrl: { type: String, required: true },
   description: { type: String },
   rating: { type: Number, default: 0 },         

@@ -7,12 +7,15 @@ const fs = require('fs');
 const Product = require('./models/Product');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const cors = require('cors');
 
 dotenv.config();
 
 const app = express();
 const PORT = 5000;
 
+
+app.use(cors());
 
 const swaggerOptions = {
   definition: {
@@ -75,6 +78,9 @@ app.use(express.json());
  *                 type: string
  *               price:
  *                 type: number
+ *               previousPrice:
+ *                 type: number
+ *                 description: "Це стара ціна продукту (може бути null для нових продуктів)"
  *               description:
  *                 type: string
  *               rating:
@@ -89,17 +95,20 @@ app.use(express.json());
  */
 
 
-
 app.post('/api/products', upload.single('image'), async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'products',
     });
 
+    // Якщо previousPrice не надано або є пустим рядком, встановлюємо його в null
+    const previousPrice = req.body.previousPrice === "" ? null : req.body.previousPrice;
+
     const newProduct = new Product({
       name: req.body.name,
       type: req.body.type,
       price: req.body.price,
+      previousPrice: previousPrice, // Використовуємо перевірене значення
       imageUrl: result.secure_url,
       description: req.body.description,
       rating: req.body.rating,
@@ -114,6 +123,19 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find();  // Assuming you have a Product model
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
