@@ -5,6 +5,7 @@ const cloudinary = require('./cloudinary');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const Product = require('./models/Product');
+const Review = require('./models/Review');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
@@ -134,6 +135,62 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+
+
+/**
+ * @swagger
+ * /api/reviews:
+ *   post:
+ *     summary: Створити новий продукт
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *               comment:
+ *                 type: string
+ *               name:
+ *                 type: string  
+ *               rating:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Успішно створено продукт
+ *       500:
+ *         description: Помилка сервера
+ */
+
+
+
+
+app.post('/api/reviews', upload.single('image'), async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'reviews',
+    });
+
+    const newReview = new Review({
+      name: req.body.name,
+      rating: req.body.rating,
+      comment: req.body.comment,
+      imageUrl: result.secure_url,
+    });
+
+    await newReview.save();
+    fs.unlinkSync(req.file.path);
+    res.status(201).json(newReview);
+  } catch (error) {
+    console.error('Error creating review:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 
 
