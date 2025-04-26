@@ -192,6 +192,16 @@ app.post('/api/reviews', upload.single('image'), async (req, res) => {
   }
 });
 
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const reviews = await Review.find();
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 
 app.listen(PORT, () => {
