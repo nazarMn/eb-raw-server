@@ -102,14 +102,13 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
       folder: 'products',
     });
 
-    // Якщо previousPrice не надано або є пустим рядком, встановлюємо його в null
     const previousPrice = req.body.previousPrice === "" ? null : req.body.previousPrice;
 
     const newProduct = new Product({
       name: req.body.name,
       type: req.body.type,
       price: req.body.price,
-      previousPrice: previousPrice, // Використовуємо перевірене значення
+      previousPrice: previousPrice,
       imageUrl: result.secure_url,
       description: req.body.description,
       rating: req.body.rating,
@@ -127,7 +126,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
 
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find();  // Assuming you have a Product model
+    const products = await Product.find();  
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
