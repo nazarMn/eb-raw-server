@@ -126,13 +126,22 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
 
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find();  
+    const { name } = req.query;  
+    let products;
+    
+    if (name) {
+      products = await Product.find({ name: { $regex: name, $options: 'i' } });
+    } else {
+      products = await Product.find();
+    }
+    
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 
 
