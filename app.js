@@ -9,6 +9,7 @@ const Review = require('./models/Review');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
+const TelegramBot = require('node-telegram-bot-api');
 
 dotenv.config();
 
@@ -209,6 +210,19 @@ app.get('/api/reviews', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+const token = process.env.TELEGRAM_BOT_TOKEN;
+
+const bot = new TelegramBot(token, { polling: true });
+
+bot.onText(/\/start/, (msg) => {
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const name = msg.chat.first_name;
+  bot.sendMessage(chatId, `Привіт, ${name}!` );
+  console.log(msg.chat);
+});
+
+
 
 
 
