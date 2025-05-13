@@ -11,6 +11,15 @@ const orderSchema = new mongoose.Schema({
     required: true,
     minlength: 3
   },
+  email: {
+    type: String,
+    required: true,
+    match: /.+\@.+\..+/
+  },
+ phoneNumber: {
+  type: String,
+  required: true
+},
   postOfficeBranch: {
     type: String,
     required: true
@@ -28,6 +37,18 @@ const orderSchema = new mongoose.Schema({
       }
     }
   ],
+  paymentMethod: {
+    type: String,
+    required: true,
+    enum: ['card', 'cash_on_delivery']
+  },
+  isPaid: {
+    type: Boolean,
+    default: false
+  },
+  paidAt: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now
