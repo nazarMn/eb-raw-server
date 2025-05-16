@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  firstName: {
+  name: {
     type: String,
     required: true,
     minlength: 3
   },
-  lastName: {
+  surname: {
     type: String,
     required: true,
     minlength: 3
@@ -16,10 +16,14 @@ const orderSchema = new mongoose.Schema({
     required: true,
     match: /.+\@.+\..+/
   },
- phoneNumber: {
-  type: String,
-  required: true
-},
+  phoneNumber: {
+    type: String,
+    required: true
+  },
+  city: {
+    type: String,
+    required: true
+  },
   postOfficeBranch: {
     type: String,
     required: true
