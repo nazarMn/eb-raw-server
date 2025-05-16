@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const Product = require('./models/Product');
 const Review = require('./models/Review');
+const Order = require('./models/Order');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
@@ -224,6 +225,23 @@ bot.onText(/\/start/, (msg) => {
 
 
 
+
+
+app.post('/api/orders', async (req, res) => {
+  try {
+    const orderData = req.body;
+
+    // Валідація можна додати тут, або покладатись на Mongoose
+    const order = new Order(orderData);
+
+    const savedOrder = await order.save();
+
+    res.status(201).json({ message: 'Order saved', order: savedOrder });
+  } catch (error) {
+    console.error('Error saving order:', error);
+    res.status(500).json({ message: 'Error saving order', error: error.message });
+  }
+});
 
 
 app.listen(PORT, () => {
