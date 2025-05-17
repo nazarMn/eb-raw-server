@@ -212,36 +212,47 @@ app.get('/api/reviews', async (req, res) => {
   }
 });
 
+
+
+
+
 const token = process.env.TELEGRAM_BOT_TOKEN;
-
+const chatId = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(token, { polling: true });
-
-bot.onText(/\/start/, (msg) => {
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  const name = msg.chat.first_name;
-  bot.sendMessage(chatId, `Привіт, ${name}!` );
-  console.log(msg.chat);
-});
-
-
-
-
 
 app.post('/api/orders', async (req, res) => {
   try {
     const orderData = req.body;
-
-    // Валідація можна додати тут, або покладатись на Mongoose
     const order = new Order(orderData);
-
     const savedOrder = await order.save();
 
-    res.status(201).json({ message: 'Order saved', order: savedOrder });
+  
+    let message = `🛒 *New order!*\n\n`;
+    message += `👤 Name: *${orderData.name} ${orderData.surname}*\n`;
+    message += `📧 Email: ${orderData.email}\n`;
+    message += `📱 Phone: ${orderData.phoneNumber}\n`;
+    message += `🏙️ City: ${orderData.city}\n`;
+    message += `🏤 Post office: ${orderData.postOfficeBranch}\n\n`;
+
+    message += `🧾 *Goods:*\n`;
+    orderData.orderItems.forEach((item, index) => {
+      message += `  ${index + 1}. ${item.productName} x${item.quantity}\n`;
+    });
+
+    message += `\n💳 Payment: ${orderData.paymentMethod === 'card' ? 'By card' : 'Сash on delivery'}\n`;
+    message += `💰 Total amount: *${orderData.totalPrice} $*\n`;
+    message += `🕐 Date of order: ${new Date(savedOrder.createdAt).toLocaleString('uk-UA')}`;
+
+  
+    await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+
+    res.status(201).json({ message: 'Order saved and sent to Telegram', order: savedOrder });
   } catch (error) {
     console.error('Error saving order:', error);
     res.status(500).json({ message: 'Error saving order', error: error.message });
   }
 });
+
 
 
 app.listen(PORT, () => {
