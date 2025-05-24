@@ -11,10 +11,13 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
+const bodyParser = require("body-parser");
 
 dotenv.config();
 
 const app = express();
+app.use(express.static("public"));
+app.use(bodyParser.json());
 const PORT = 5000;
 
 
@@ -253,6 +256,31 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+
+
+bot.onText(/\/start/, (msg) => {
+  bot.sendMessage(msg.chat.id, "👋 Відкрий WebApp", {
+    reply_markup: {
+      keyboard: [
+        [
+          {
+            text: "🛍 Відкрити магазин",
+            web_app: { url: "https://eb-raw.vercel.app/" },
+          },
+        ],
+      ],
+      resize_keyboard: true,
+    },
+  });
+});
+
+bot.on("message", (msg) => {
+  if (msg.web_app_data) {
+    const data = JSON.parse(msg.web_app_data.data);
+    console.log("📩 Отримано з WebApp:", data);
+    bot.sendMessage(msg.chat.id, `✅ Ти замовив: ${data.item}`);
+  }
+});
 
 
 app.listen(PORT, () => {
